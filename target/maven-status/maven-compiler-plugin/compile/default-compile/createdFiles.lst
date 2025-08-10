@@ -1,0 +1,12 @@
+ejb/UserService.class
+ejb/LoanService.class
+services/MovieWebService.class
+entities/Movie.class
+com/mycompany/blockkbusterr/resources/JakartaEE10Resource.class
+services/UserWebService.class
+com/mycompany/blockkbusterr/JakartaRestConfiguration.class
+ejb/RatingService.class
+entities/User.class
+entities/Loan.class
+ejb/MovieService.class
+entities/Rating.class
