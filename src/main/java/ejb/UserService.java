@@ -28,4 +28,8 @@ public class UserService {
     public User findById(int userId) {
         return em.find(User.class, userId);
     }
+    
+    public List<User> getAllUsers() {
+        return em.createQuery("SELECT u FROM User u", User.class).getResultList();
+    }
 }

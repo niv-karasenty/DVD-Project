@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE resources PUBLIC "-//GlassFish.org//DTD GlassFish Application Server 3.1 Resource Definitions//EN" "http://glassfish.org/dtds/glassfish-resources_1_5.dtd">
+<resources>
+    <!-- Connection Pool -->
+    <jdbc-connection-pool name="dvd_rental_pool"
+                          res-type="javax.sql.DataSource"
+                          datasource-classname="com.mysql.cj.jdbc.MysqlDataSource"
+                          ping="true">
+        <property name="URL" value="jdbc:mysql://localhost:3306/dvd_rental?createDatabaseIfNotExist=true&amp;serverTimezone=UTC"/>
+        <property name="User" value="root"/>
+        <property name="Password" value="YOUR_PASSWORD"/>
+        <property name="DatabaseName" value="dvd_rental"/>
+        <property name="ServerName" value="localhost"/>
+        <property name="PortNumber" value="3306"/>
+    </jdbc-connection-pool>
+
+    <!-- JNDI Resource -->
+    <jdbc-resource pool-name="dvd_rental_pool" jndi-name="jdbc/dvd_rental"/>
+</resources>

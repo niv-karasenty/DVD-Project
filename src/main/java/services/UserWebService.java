@@ -5,6 +5,7 @@ import entities.User;
 import jakarta.ejb.EJB;
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
+import java.util.*;
 
 @WebService
 public class UserWebService {
@@ -34,5 +35,10 @@ public class UserWebService {
     @WebMethod
     public User findUser(int userId) {
         return userService.findById(userId);
+    }
+    
+    @WebMethod
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
     }
 }

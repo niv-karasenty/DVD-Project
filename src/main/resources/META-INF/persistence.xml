@@ -1,10 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
-  <!-- Define Persistence Unit -->
-  <persistence-unit name="my_persistence_unit">
+<persistence version="3.0"
+             xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+                                 https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+
+  <!-- Keep your unit name or set the one you actually use in @PersistenceContext -->
+  <persistence-unit name="BlockkBusterrBackEnd1.0PU" transaction-type="JTA">
+    <!-- ADD THIS: JNDI name for the DataSource provided by the server -->
+    <jta-data-source>jdbc/dvd_rental</jta-data-source>
+
+    <!-- Your entities (kept as-is) -->
     <class>entities.Loan</class>
     <class>entities.Movie</class>
     <class>entities.User</class>
     <class>entities.Rating</class>
+
+    <properties>
+      <!-- ✅ Ask JPA to create tables in the target database on deploy -->
+      <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
+
+      <!-- Optional: also emit the DDL to a file so you can see what was generated -->
+      <property name="jakarta.persistence.schema-generation.scripts.action" value="create"/>
+      <property name="jakarta.persistence.schema-generation.scripts.create-target"
+                value="target/generated-ddl/create.sql"/>
+
+      <!-- Optional seed data (put META-INF/data.sql on the classpath to preload rows) -->
+      <!-- <property name="jakarta.persistence.sql-load-script-source" value="META-INF/data.sql"/> -->
+    </properties>
   </persistence-unit>
 </persistence>

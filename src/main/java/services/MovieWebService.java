@@ -39,4 +39,14 @@ public class MovieWebService {
         movieService.updateMovie(movie);
         return "Movie updated";
     }
+    
+    @WebMethod
+    public List<Movie> getMoviesByTitle(String title) {
+        return movieService.getMoviesByTitle(title);
+    }
+
+    @WebMethod
+    public String deleteMovie(int movieId) {
+        return movieService.deleteMovie(movieId);
+    }
 }

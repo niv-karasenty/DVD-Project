@@ -33,4 +33,19 @@ public class MovieService {
     public void updateMovie(Movie movie) {
         em.merge(movie);
     }
+    
+    public List<Movie> getMoviesByTitle(String title) {
+        return em.createQuery("SELECT m FROM Movie m WHERE LOWER(m.title) LIKE LOWER(:title)", Movie.class)
+                 .setParameter("title", "%" + title.toLowerCase() + "%")
+                 .getResultList();
+    }
+
+    public String deleteMovie(int movieId) {
+        Movie movie = em.find(Movie.class, movieId);
+        if (movie != null) {
+            em.remove(movie);
+            return "Movie deleted successfully.";
+        }
+        return "Movie not found.";
+    }
 }
