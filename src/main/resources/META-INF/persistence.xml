@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
     <!-- Define Persistence Unit -->
-    <persistence-unit name="my_persistence_unit">
+    <persistence-unit name="blockkbusterr_pu" transaction-type="JTA">
+        <!-- Use TomEE's default JPA provider -->
+        <jta-data-source>blockkbusterrDS</jta-data-source>
         
+        <!-- Entity Classes -->
+        <class>com.mycompany.blockkbusterr.entity.User</class>
+        <class>com.mycompany.blockkbusterr.entity.Movie</class>
+        <class>com.mycompany.blockkbusterr.entity.Rental</class>
+        <class>com.mycompany.blockkbusterr.entity.Review</class>
+        
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        
+        <properties>
+            <!-- OpenJPA properties for table creation with MySQL compatibility -->
+            <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+            <property name="openjpa.jdbc.DBDictionary" value="org.apache.openjpa.jdbc.sql.MySQLDictionary"/>
+            <property name="openjpa.jdbc.Schema" value="blockkbusterr"/>
+            <property name="openjpa.Log" value="DefaultLevel=INFO, Tool=INFO, SQL=TRACE"/>
+        </properties>
     </persistence-unit>
 </persistence>

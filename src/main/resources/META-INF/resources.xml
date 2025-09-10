@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <!-- MySQL DataSource Configuration for TomEE -->
+    <Resource id="blockkbusterrDS" type="DataSource">
+        JdbcDriver com.mysql.cj.jdbc.Driver
+        JdbcUrl jdbc:mysql://localhost:3306/blockkbusterr?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC
+        UserName root
+        Password 12345678
+        JtaManaged true
+        InitialSize 5
+        MaxActive 20
+        MaxIdle 10
+        MinIdle 5
+        MaxWait 10000
+        ValidationQuery SELECT 1
+        TestOnBorrow true
+        TestOnReturn false
+        TestWhileIdle true
+        TimeBetweenEvictionRunsMillis 30000
+        MinEvictableIdleTimeMillis 60000
+    </Resource>
+
+    <!-- Non-JTA DataSource for schema operations -->
+    <Resource id="blockkbusterrDS_nonJta" type="DataSource">
+        JdbcDriver com.mysql.cj.jdbc.Driver
+        JdbcUrl jdbc:mysql://localhost:3306/blockkbusterr?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;serverTimezone=UTC
+        UserName root
+        Password 12345678
+        JtaManaged false
+        InitialSize 2
+        MaxActive 10
+        MaxIdle 5
+        MinIdle 2
+        MaxWait 10000
+        ValidationQuery SELECT 1
+        TestOnBorrow true
+        TestOnReturn false
+        TestWhileIdle true
+        TimeBetweenEvictionRunsMillis 30000
+        MinEvictableIdleTimeMillis 60000
+    </Resource>
+</resources>

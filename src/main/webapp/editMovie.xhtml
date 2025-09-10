@@ -1,34 +1,101 @@
 <!DOCTYPE html>
 <ui:composition template="/templates/template.xhtml"
                 xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="jakarta.faces.html"
-                xmlns:f="jakarta.faces.core"
-                xmlns:ui="jakarta.faces.facelets">
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
     <ui:define name="title">Blockk Busterr - Edit Movie</ui:define>
     <ui:define name="main-title">Edit Movie</ui:define>
 
     <ui:define name="content">
+        <!-- Admin access check -->
+        <h:panelGroup rendered="#{not sessionBean.admin}">
+            <div class="access-denied">
+                <h2>Access Denied</h2>
+                <p>You must be an administrator to edit movies.</p>
+                <h:form>
+                    <h:commandButton value="Go to Main Page" action="#{sessionBean.goToMainPage}" styleClass="btn btn-primary" />
+                </h:form>
+            </div>
+        </h:panelGroup>
+
+        <!-- Admin content -->
+        <h:panelGroup rendered="#{sessionBean.admin}">
         <div class="register-form-container">
-            <h2>Edit Movie Details</h2>
+            <h2>#{movieManagementBean.pageTitle}</h2>
+            
+            <!-- Display messages -->
+            <h:messages id="messages" styleClass="messages" errorClass="error-message"
+                       infoClass="info-message" warnClass="warn-message" />
+            
             <h:form class="register-form">
                 <h:outputLabel for="title" value="Title:" />
-                <h:inputText id="title" value="" />
-                <h:outputLabel for="releaseDate" value="Release Date:" />
-                <h:inputText id="releaseDate" value="" />
+                <h:inputText id="title" value="#{movieManagementBean.title}" required="true"
+                           requiredMessage="Title is required" />
+                
+                <h:outputLabel for="releaseYear" value="Release Year:" />
+                <h:inputText id="releaseYear" value="#{movieManagementBean.releaseYear}" required="true"
+                           requiredMessage="Release year is required">
+                    <f:convertNumber integerOnly="true" groupingUsed="false" />
+                    <f:validateLongRange minimum="1888" maximum="2030" />
+                </h:inputText>
+                
                 <h:outputLabel for="duration" value="Duration (min):" />
-                <h:inputText id="duration" value="" />
+                <h:inputText id="duration" value="#{movieManagementBean.duration}" required="true"
+                           requiredMessage="Duration is required">
+                    <f:convertNumber integerOnly="true" />
+                </h:inputText>
+                
                 <h:outputLabel for="genre" value="Genre:" />
-                <h:inputText id="genre" value="" />
+                <h:inputText id="genre" value="#{movieManagementBean.genre}" required="true"
+                           requiredMessage="Genre is required" />
+                
                 <h:outputLabel for="quantity" value="Quantity:" />
-                <h:inputText id="quantity" value="" />
+                <h:inputText id="quantity" value="#{movieManagementBean.quantity}" required="true"
+                           requiredMessage="Quantity is required">
+                    <f:convertNumber integerOnly="true" />
+                </h:inputText>
+                
                 <h:outputLabel for="description" value="Description:" />
-                <h:inputTextarea id="description" value="" rows="3" cols="50" />
-                <h:outputLabel value="Movie Image:" />
-                <h:graphicImage library="img" name="movie-placeholder.jpg" alt="Movie Image" styleClass="movie-img" />
-                <h:commandButton value="Update Movie" type="submit" />
+                <h:inputTextarea id="description" value="#{movieManagementBean.description}"
+                               rows="3" cols="50" />
+                
+                <div class="form-buttons">
+                    <h:commandButton value="#{movieManagementBean.submitButtonLabel}"
+                                   action="#{movieManagementBean.updateMovie()}"
+                                   rendered="#{movieManagementBean.editMode}"
+                                   styleClass="btn btn-primary" />
+                    <h:commandButton value="#{movieManagementBean.submitButtonLabel}"
+                                   action="#{movieManagementBean.addMovie()}"
+                                   rendered="#{not movieManagementBean.editMode}"
+                                   styleClass="btn btn-primary" />
+                    <h:commandButton value="Cancel" action="#{movieManagementBean.cancel()}"
+                                   immediate="true" styleClass="btn btn-secondary" />
+                </div>
             </h:form>
         </div>
+        </h:panelGroup>
+        
+        <!-- Add access denied styling -->
+        <style type="text/css">
+            .access-denied {
+                text-align: center;
+                background: var(--darker-gray-bg);
+                padding: 60px;
+                border-radius: 12px;
+                box-shadow: 0 4px 15px var(--shadow-dark);
+                border: 2px solid #dc3545;
+                max-width: 600px;
+                margin: 50px auto;
+                color: var(--light-text);
+            }
+            
+            .access-denied h2 {
+                color: #dc3545;
+                margin-bottom: 20px;
+            }
+        </style>
     </ui:define>
 
 </ui:composition>
