@@ -1,0 +1,380 @@
+package com.mycompany.blockkbusterr.service;
+
+import com.mycompany.blockkbusterr.entity.Movie;
+import com.mycompany.blockkbusterr.repository.MovieRepository;
+import com.mycompany.blockkbusterr.repository.ReviewRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
+
+@ApplicationScoped
+@Transactional
+public class MovieService {
+    
+    @Inject
+    private MovieRepository movieRepository;
+    
+    @Inject
+    private ReviewRepository reviewRepository;
+    
+    /**
+     * Add a new movie
+     */
+    public Movie addMovie(String title, Integer releaseYear, Integer duration, String genre, Integer quantity, String description) {
+        System.out.println("DEBUG: MovieService.addMovie() called - Title: " + title + ", Quantity: " + quantity);
+        
+        // Validate input
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title is required");
+        }
+        if (releaseYear == null) {
+            throw new IllegalArgumentException("Release year is required");
+        }
+        if (releaseYear < 1888 || releaseYear > java.time.LocalDate.now().getYear() + 5) {
+            throw new IllegalArgumentException("Release year must be between 1888 and " + (java.time.LocalDate.now().getYear() + 5));
+        }
+        if (duration == null || duration <= 0) {
+            throw new IllegalArgumentException("Duration must be a positive number");
+        }
+        if (genre == null || genre.trim().isEmpty()) {
+            throw new IllegalArgumentException("Genre is required");
+        }
+        if (quantity == null || quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+        
+        // Create new movie
+        Movie movie = new Movie();
+        movie.setTitle(title.trim());
+        movie.setReleaseYear(releaseYear);
+        movie.setDuration(duration);
+        movie.setGenre(genre.trim());
+        movie.setQuantity(quantity);
+        movie.setDescription(description != null ? description.trim() : null);
+        movie.setActive(true);
+        
+        Movie savedMovie = movieRepository.save(movie);
+        System.out.println("DEBUG: MovieService.addMovie() - Movie saved with ID: " + savedMovie.getMovieId() + ", Quantity: " + savedMovie.getQuantity());
+        
+        // Force immediate flush and clear to ensure data is committed
+        movieRepository.flush();
+        System.out.println("DEBUG: MovieService.addMovie() - Changes flushed to database");
+        
+        // Add a small delay to ensure transaction is fully committed
+        try {
+            Thread.sleep(100); // 100ms delay
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
+        // Force persistence context to be cleared to avoid caching issues
+        movieRepository.clear();
+        System.out.println("DEBUG: MovieService.addMovie() - Persistence context cleared");
+        
+        return savedMovie;
+    }
+    
+    /**
+     * Update an existing movie
+     */
+    public Movie updateMovie(Long movieId, String title, Integer releaseYear, Integer duration, String genre, Integer quantity, String description) {
+        Optional<Movie> movieOpt = movieRepository.findById(movieId);
+        if (movieOpt.isEmpty()) {
+            throw new IllegalArgumentException("Movie not found");
+        }
+        
+        Movie movie = movieOpt.get();
+        
+        // Validate input
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title is required");
+        }
+        if (releaseYear == null) {
+            throw new IllegalArgumentException("Release year is required");
+        }
+        if (releaseYear < 1888 || releaseYear > java.time.LocalDate.now().getYear() + 5) {
+            throw new IllegalArgumentException("Release year must be between 1888 and " + (java.time.LocalDate.now().getYear() + 5));
+        }
+        if (duration == null || duration <= 0) {
+            throw new IllegalArgumentException("Duration must be a positive number");
+        }
+        if (genre == null || genre.trim().isEmpty()) {
+            throw new IllegalArgumentException("Genre is required");
+        }
+        if (quantity == null || quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+        
+        // Update movie fields
+        movie.setTitle(title.trim());
+        movie.setReleaseYear(releaseYear);
+        movie.setDuration(duration);
+        movie.setGenre(genre.trim());
+        movie.setQuantity(quantity);
+        movie.setDescription(description != null ? description.trim() : null);
+        
+        return movieRepository.update(movie);
+    }
+    
+    /**
+     * Find movie by ID
+     */
+    public Optional<Movie> findMovieById(Long movieId) {
+        System.out.println("DEBUG: MovieService.findMovieById() called with ID: " + movieId);
+        try {
+            System.out.println("DEBUG: Calling movieRepository.findById(" + movieId + ")");
+            Optional<Movie> result = movieRepository.findById(movieId);
+            System.out.println("DEBUG: Repository returned: " + (result.isPresent() ? "Movie found (" + result.get().getTitle() + ")" : "Movie not found"));
+            return result;
+        } catch (Exception e) {
+            System.out.println("DEBUG: Exception in MovieService.findMovieById: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+    /**
+     * Get all movies
+     */
+    public List<Movie> getAllMovies() {
+        return movieRepository.findAll();
+    }
+    
+    /**
+     * Get available movies (quantity > 0)
+     */
+    public List<Movie> getAvailableMovies() {
+        return movieRepository.findAvailableMovies();
+    }
+    
+    
+    /**
+     * Search movies by multiple criteria
+     */
+    public List<Movie> searchMovies(String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return getAllMovies();
+        }
+        return movieRepository.searchMovies(searchTerm.trim());
+    }
+    
+    /**
+     * Get movies by release year
+     */
+    public List<Movie> getMoviesByReleaseYear(int year) {
+        return movieRepository.findByReleaseYear(year);
+    }
+    
+    /**
+     * Get movies by release year range
+     */
+    public List<Movie> getMoviesByReleaseYearRange(int startYear, int endYear) {
+        return movieRepository.findByReleaseYearRange(startYear, endYear);
+    }
+    
+    /**
+     * Get movies by duration range
+     */
+    public List<Movie> getMoviesByDurationRange(int minDuration, int maxDuration) {
+        return movieRepository.findByDurationRange(minDuration, maxDuration);
+    }
+    
+    /**
+     * Get newest movies
+     */
+    public List<Movie> getNewestMovies(int limit) {
+        return movieRepository.findNewestMovies(limit);
+    }
+    
+    /**
+     * Get most popular movies
+     */
+    public List<Movie> getMostPopularMovies(int limit) {
+        return movieRepository.findMostPopularMovies(limit);
+    }
+    
+    /**
+     * Get movies with minimum rating
+     */
+    public List<Movie> getMoviesWithMinimumRating(double minRating) {
+        return movieRepository.findByMinimumRating(minRating);
+    }
+    
+    /**
+     * Get low stock movies
+     */
+    public List<Movie> getLowStockMovies(int threshold) {
+        System.out.println("DEBUG: MovieService.getLowStockMovies() called with threshold: " + threshold);
+        try {
+            List<Movie> result = movieRepository.findLowStockMovies(threshold);
+            System.out.println("DEBUG: MovieService found " + result.size() + " low stock movies");
+            for (Movie movie : result) {
+                System.out.println("DEBUG: MovieService - Low stock movie: " + movie.getTitle() + " (Quantity: " + movie.getQuantity() + ")");
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println("DEBUG: Exception in MovieService.getLowStockMovies: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+    /**
+     * Get low stock movies with forced refresh (clears cache first)
+     */
+    public List<Movie> getLowStockMoviesRefresh(int threshold) {
+        System.out.println("DEBUG: MovieService.getLowStockMoviesRefresh() called with threshold: " + threshold);
+        try {
+            // Clear persistence context to force fresh database query
+            movieRepository.clear();
+            System.out.println("DEBUG: Persistence context cleared before query");
+            
+            List<Movie> result = movieRepository.findLowStockMovies(threshold);
+            System.out.println("DEBUG: MovieService found " + result.size() + " low stock movies after refresh");
+            for (Movie movie : result) {
+                System.out.println("DEBUG: MovieService - Low stock movie: " + movie.getTitle() + " (Quantity: " + movie.getQuantity() + ")");
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println("DEBUG: Exception in MovieService.getLowStockMoviesRefresh: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+    /**
+     * Clear movie cache (persistence context)
+     */
+    public void clearMovieCache() {
+        System.out.println("DEBUG: MovieService.clearMovieCache() called");
+        movieRepository.clear();
+        System.out.println("DEBUG: Movie cache cleared");
+    }
+    
+    /**
+     * Get out of stock movies
+     */
+    public List<Movie> getOutOfStockMovies() {
+        return movieRepository.findOutOfStockMovies();
+    }
+    
+    
+    /**
+     * Increase movie quantity (for returns)
+     */
+    public boolean increaseMovieQuantity(Long movieId) {
+        return movieRepository.increaseQuantity(movieId);
+    }
+    
+    /**
+     * Decrease movie quantity (for rentals)
+     */
+    public boolean decreaseMovieQuantity(Long movieId) {
+        return movieRepository.decreaseQuantity(movieId);
+    }
+    
+    /**
+     * Check if movie is available for rental
+     */
+    public boolean isMovieAvailable(Long movieId) {
+        Optional<Movie> movieOpt = movieRepository.findById(movieId);
+        return movieOpt.isPresent() && movieOpt.get().isAvailable();
+    }
+    
+    
+    /**
+     * Delete movie
+     */
+    public boolean deleteMovie(Long movieId) {
+        return movieRepository.deleteById(movieId);
+    }
+    
+    /**
+     * Get all distinct genres
+     */
+    public List<String> getAllGenres() {
+        return movieRepository.getDistinctGenres();
+    }
+    
+    
+    /**
+     * Update movie quantity
+     */
+    public boolean updateMovieQuantity(Long movieId, int newQuantity) {
+        if (newQuantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+        return movieRepository.updateQuantity(movieId, newQuantity);
+    }
+    
+    /**
+     * Get movie statistics
+     */
+    public MovieStats getMovieStats() {
+        long totalMovies = movieRepository.count();
+        long availableMovies = movieRepository.countAvailableMovies();
+        List<Movie> lowStockMovies = movieRepository.findLowStockMovies(5);
+        List<Movie> outOfStockMovies = movieRepository.findOutOfStockMovies();
+        
+        return new MovieStats(totalMovies, availableMovies, lowStockMovies.size(), outOfStockMovies.size());
+    }
+    
+    /**
+     * Get movie with average rating
+     */
+    public MovieWithRating getMovieWithRating(Long movieId) {
+        Optional<Movie> movieOpt = movieRepository.findById(movieId);
+        if (movieOpt.isEmpty()) {
+            return null;
+        }
+        
+        Movie movie = movieOpt.get();
+        Double averageRating = reviewRepository.getAverageRatingForMovie(movieId);
+        long reviewCount = reviewRepository.countReviewsForMovie(movieId);
+        
+        return new MovieWithRating(movie, averageRating != null ? averageRating : 0.0, reviewCount);
+    }
+    
+    // Inner class for movie statistics
+    public static class MovieStats {
+        private final long totalMovies;
+        private final long availableMovies;
+        private final long lowStockMovies;
+        private final long outOfStockMovies;
+        
+        public MovieStats(long totalMovies, long availableMovies, long lowStockMovies, long outOfStockMovies) {
+            this.totalMovies = totalMovies;
+            this.availableMovies = availableMovies;
+            this.lowStockMovies = lowStockMovies;
+            this.outOfStockMovies = outOfStockMovies;
+        }
+        
+        public long getTotalMovies() { return totalMovies; }
+        public long getAvailableMovies() { return availableMovies; }
+        public long getLowStockMovies() { return lowStockMovies; }
+        public long getOutOfStockMovies() { return outOfStockMovies; }
+    }
+    
+    // Inner class for movie with rating
+    public static class MovieWithRating {
+        private final Movie movie;
+        private final double averageRating;
+        private final long reviewCount;
+        
+        public MovieWithRating(Movie movie, double averageRating, long reviewCount) {
+            this.movie = movie;
+            this.averageRating = averageRating;
+            this.reviewCount = reviewCount;
+        }
+        
+        public Movie getMovie() { return movie; }
+        public double getAverageRating() { return averageRating; }
+        public long getReviewCount() { return reviewCount; }
+        
+        public String getFormattedRating() {
+            return String.format("%.1f", averageRating);
+        }
+    }
+}
